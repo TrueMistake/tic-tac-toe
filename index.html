@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        *{
+            box-sizing: border-box;
+        }
+        body{
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background: linear-gradient(rgba(0,0,0,.4), transparent 1px),
+                        linear-gradient(90deg, rgba(0,0,0,.4), transparent 1px);
+            background-size: 30px 30px;
+        }
+        .res{
+            color: green;
+            font-weight: bold;
+            font-size: 40px;
+            font-family: 'Arial';
+            height: 50px;
+        }
+        .game{
+            width: 360px;
+            height: 360px;
+            display: flex;
+            flex-wrap: wrap;
+            margin: 30px 0;
+            outline: 3px solid #000;
+        }
+        .field{
+            width: 120px;
+            height: 120px;
+            border: 2px solid #000;
+            cursor: pointer;
+        }
+        .new{
+            border: none;
+            color: #fff;
+            background: green;
+            padding: 10px 16px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .active{
+            background: rgba(0,255,0,.5);
+        }
+        circle{
+            width: 100%;
+            height: 100%;
+            stroke-dasharray: 283;
+            stroke-dashoffset: 283;
+            animation: draw 1s forwards;
+        }
+        @keyframes draw {
+            100%{stroke-dashoffset: 0}
+        }
+        .circle{
+            width: 100%;
+            height: 100%;
+        }
+        .cross{
+            width: 100%;
+            height: 100%;
+        }
+        .first{
+            stroke-dasharray: 125;
+            stroke-dashoffset: 125;
+            animation: draw .5s forwards;
+        }
+        .second{
+            stroke-dasharray: 125;
+            stroke-dashoffset: 125;
+            animation: draw .5s .5s forwards;
+        }
+    </style>
+</head>
+<body>
+
+
+
+    <script>
+        const body = document.querySelector('body');
+        const circle = `<svg class="circle">
+                <circle r="45" cx="58" cy="58" stroke="blue" stroke-width="10" fill="none" stroke-linecap="round"></circle>
+            </svg>`;
+        const cross = `<svg class="cross">
+                <line class="first" x1="15" y1="15" stroke-width="10" stroke-linecap="round" x2="100" y2="100" stroke="red"></line>
+                <line class="second" x1="100" y1="15" stroke-width="10" stroke-linecap="round" x2="15" y2="100" stroke="red"></line>
+            </svg>`;
+        let step = false;
+        let count = 0;
+
+
+        let res = document.createElement('div');
+        res.className = 'res';
+        body.append(res);
+
+        let game = document.createElement('div');
+        game.className = 'game';
+        body.append(game);
+
+        for (let i = 0; i < 9; i++) {
+            let field = document.createElement('div');
+            field.className = 'field';
+            game.append(field);
+        }
+        const fields = document.querySelectorAll('.field');
+
+        let newGames = document.createElement('button');
+        newGames.className = 'new';
+        newGames.innerText = 'Новая игра';
+        body.append(newGames);
+
+        newGames.addEventListener('click', newGame);
+        game.addEventListener('click', init);
+
+
+        function stepInit(target, type) {
+            if (!target.childNodes.length) {
+                if (type) {
+                    target.innerHTML = cross;
+                    target.classList.add('x');
+                } else {
+                    target.innerHTML = circle;
+                    target.classList.add('o');
+                }
+                count++;
+                step = !step;
+            }
+        }
+
+
+        function init(e) {
+            if (!step) stepInit(e.target, 1);
+            else stepInit(e.target, 0);
+            winComb();
+        }
+
+
+        function newGame() {
+            step = false;
+            count = 0;
+            res.innerText = '';
+            fields.forEach(item => {
+                item.innerHTML = '';
+                item.classList.remove('x', 'o', 'active');
+            });
+            game.addEventListener('click', init);
+        }
+
+        function winComb() {
+            const wins = [
+                [0,1,2],
+                [3,4,5],
+                [6,7,8],
+                [0,3,6],
+                [1,4,7],
+                [2,5,8],
+                [0,4,8],
+                [2,4,6]
+            ];
+
+            for (let i = 0; i < wins.length; i++) {
+              if (fields[wins[i][0]].classList.contains('x') && fields[wins[i][1]].classList.contains('x') && fields[wins[i][2]].classList.contains('x')) {
+                  setTimeout(() => {
+                      fields[wins[i][0]].classList.add('active');
+                      fields[wins[i][1]].classList.add('active');
+                      fields[wins[i][2]].classList.add('active');
+                      res.innerText = 'Выйграли X';
+                  }, 1000);
+                  game.removeEventListener('click', init);
+              } else if (fields[wins[i][0]].classList.contains('o') && fields[wins[i][1]].classList.contains('o') && fields[wins[i][2]].classList.contains('o')) {
+                    setTimeout(() => {
+                        fields[wins[i][0]].classList.add('active');
+                        fields[wins[i][1]].classList.add('active');
+                        fields[wins[i][2]].classList.add('active');
+                        res.innerText = 'Выйграли О';
+                    }, 1500);
+                    game.removeEventListener('click', init);
+              } else if (count == 9) {
+                  setTimeout(() => {
+                      res.innerText = 'Ничья';
+                      game.removeEventListener('click', init);
+                  }, 1000);
+              }
+            }
+        }
+
+
+    </script>
+</body>
+</html>
